@@ -66,7 +66,7 @@ func (apd *CRDBDriver) Conn() *pgx.Conn {
 }
 
 func (apd *CRDBDriver) RunTx(ctx context.Context, f migrate.TxMigrationFunc[pgx.Tx]) error {
-	return apd.db.BeginFunc(ctx, func(tx pgx.Tx) error {
+	return pgx.BeginFunc(ctx, apd.db, func(tx pgx.Tx) error {
 		return f(ctx, tx)
 	})
 }

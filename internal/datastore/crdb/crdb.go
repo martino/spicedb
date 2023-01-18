@@ -74,7 +74,8 @@ func newCRDBDatastore(url string, options ...Option) (datastore.Datastore, error
 		return nil, fmt.Errorf(errUnableToInstantiate, err)
 	}
 
-	poolConfig, err := pgxpool.ParseConfig(url)
+    poolConfig, err := pgxpool.ParseConfig(url)
+
 	if err != nil {
 		return nil, fmt.Errorf(errUnableToInstantiate, err)
 	}
@@ -84,7 +85,7 @@ func newCRDBDatastore(url string, options ...Option) (datastore.Datastore, error
 	initCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	pool, err := pgxpool.ConnectConfig(initCtx, poolConfig)
+	pool, err := pgxpool.NewWithConfig(initCtx, poolConfig)
 	if err != nil {
 		return nil, fmt.Errorf(errUnableToInstantiate, err)
 	}

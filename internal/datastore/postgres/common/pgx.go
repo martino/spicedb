@@ -10,8 +10,9 @@ import (
 	"github.com/authzed/spicedb/internal/logging"
 	corev1 "github.com/authzed/spicedb/pkg/proto/core/v1"
 
+	zerologadapter "github.com/jackc/pgx-zerolog"
 	"github.com/jackc/pgx/v5"
-	zerolog "github.com/jackc/pgx-zerolog"
+	"github.com/jackc/pgx/v5/tracelog"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -84,10 +85,10 @@ func queryTuples(ctx context.Context, sqlStatement string, args []any, span trac
 // ConfigurePGXLogger sets zerolog global logger into the connection pool configuration, and maps
 // info level events to debug, as they are rather verbose for SpiceDB's info level
 func ConfigurePGXLogger(connConfig *pgx.ConnConfig) {
-	levelMappingFn := func(logger pgx.Logger) pgx.LoggerFunc {
-		return func(ctx context.Context, level pgx.LogLevel, msg string, data map[string]interface{}) {
-			if level == pgx.LogLevelInfo {
-				level = pgx.LogLevelDebug
+	levelMappingFn := func(logger tracelog.Logger) tracelog.LoggerFunc {
+		return func(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]interface{}) {
+			if level == tracelog.LogLevelInfo {
+				level = tracelog.LogLevelDebug
 			}
 
 			// do not log cancelled queries as errors
@@ -100,8 +101,8 @@ func ConfigurePGXLogger(connConfig *pgx.ConnConfig) {
 			logger.Log(ctx, level, msg, data)
 		}
 	}
-	l := zerolog.NewLogger(logging.Logger)
-	connConfig.Logger = levelMappingFn(l)
+	l := zerologadapter.NewLogger(logging.Logger)
+    connConfig.Tracer = &tracelog.TraceLog{Logger: levelMappingFn(l), LogLevel: tracelog.LogLevelInfo}
 }
 
 // TxFactory returns a transaction, cleanup function, and any errors that may have
