@@ -3,7 +3,7 @@ package migrations
 import (
 	"github.com/authzed/spicedb/pkg/migrate"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 )
 
 var (

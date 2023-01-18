@@ -10,8 +10,8 @@ import (
 	"github.com/authzed/spicedb/internal/logging"
 	corev1 "github.com/authzed/spicedb/pkg/proto/core/v1"
 
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/log/zerologadapter"
+	"github.com/jackc/pgx/v5"
+	zerolog "github.com/jackc/pgx-zerolog"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -100,7 +100,7 @@ func ConfigurePGXLogger(connConfig *pgx.ConnConfig) {
 			logger.Log(ctx, level, msg, data)
 		}
 	}
-	l := zerologadapter.NewLogger(logging.Logger)
+	l := zerolog.NewLogger(logging.Logger)
 	connConfig.Logger = levelMappingFn(l)
 }
 
